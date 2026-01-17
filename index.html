@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  
+  <title>RSSZ</title>
+  <link rel="icon" type="image/webp" href="MSMT_logo.webp" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="stylesheet.css" />
+  <script src="script.js"></script>
+</head>
+<body class="min-vh-100 d-flex flex-column">
+  <header class="container-fluid sticky-top mb-4 p-3 border-bottom position-relative">
+    <a href="https://msmt.gov.cz/"
+      class="position-absolute start-0 top-50 translate-middle-y ms-3">
+      <img src="MSMT_logo.webp" alt="MSMT Logo" height="80" />
+    </a>
+
+    <h1 class="m-0 text-center">Rejstřík škol a školských zařízení </h1>
+  </header>
+
+  <main class="container flex-grow-1" >
+    <div class="row">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title text-center">Hledání</h2>
+          
+          <!-- Search by school name -->
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <strong><label><i class="bi bi-alphabet-uppercase"></i> Hledat podle názvu školy:</label></strong>
+              <input type="text" id="inputSearchByName" class="form-control" placeholder="např. Gymnázium" />
+              <div id="validationSchoolName" class="invalid-feedback invisible">
+                Prosím zadejte platný název školy.
+              </div>
+            </div>
+            <div class="col col-sm-1 align-self-end">
+              <button onclick="runAndRenderQuery(queryByName())" class="btn btn-outline-secondary">Hledat</button>
+            </div>
+          </div>
+
+          <!-- Search by field of study -->
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <strong><label><i class="bi bi-pen"></i> Hledat podle názvu oboru:</label></strong>
+              <input type="text" id="inputSearchByFieldOfStudy" class="form-control" placeholder="např. Elektrikář" />
+              <div id="validationFieldOfStudy" class="invalid-feedback invisible">
+                Prosím zadejte platný název oboru.
+              </div>
+            </div>
+            <div class="col col-sm-1 align-self-end">
+              <button onclick="runAndRenderQuery(queryByFieldOfStudy())" class="btn btn-outline-secondary">Hledat</button>
+            </div>
+          </div>
+
+          <!-- Search by munincipality -->
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <strong><label><i class="bi bi-buildings"></i> Hledat podle názvu obce:</label></strong>
+              <input type="text" id="inputSearchByMunicipality" class="form-control" placeholder="např. Praha" />
+              <div id="validationMunicipality" class="invalid-feedback invisible">
+                Prosím zadejte platný název obce.
+              </div>
+            </div>
+            <div class="col col-sm-1 align-self-end">
+              <button onclick="runAndRenderQuery(queryByMunicipality())" class="btn btn-outline-secondary">Hledat</button>
+            </div>
+          </div>
+
+
+          <div class="row mb-1 mt-4">  
+              <h5><i class="bi bi-bar-chart"></i> Agregované dotazy</h5>
+          </div>
+          <div class="row mb-1">
+            <div class="col-md-3">
+              <button class="btn btn-outline-info" onclick="runAndRenderQuery(queryMunicipalitiesBySchools())"><i class="bi bi-map"></i> Obce podle počtu škol</button>
+            </div>
+          </div>
+
+          <div class="row mb-1">
+            <div class="col-md-3">
+              <button class="btn btn-outline-info" onclick="runAndRenderQuery(queryFieldsOfStudyBySchools())"><i class="bi bi-bar-chart-line"></i> Obory podle počtu škol</button>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <div> 
+      <h3 class="display-5"> <i class="bi bi-search"></i> 
+        Výsledky Hledání
+      </h3> 
+    </div>
+
+    <div id="queryResult">
+      <p id="resultText"><i class="bi bi-info-circle"> </i>Zadejte dotaz a klikněte na tlačítko hledat. </p>
+      <!-- Main results will be displayed here -->
+    </div>
+
+
+
+    <div class="modal fade" id="queryResultModalContainer" tabindex="-1" aria-labelledby="queryResultModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="modalTitle">Detail</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="queryResultModal">
+            <!-- Detailed results will be displayed here -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zavřít</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="sticky-bottom container-fluid text-center mt-4 border-top">
+    <p>Data RSSZ (Rejstřík škol a školských zařízení) pocházejí z <a href="https://data.gov.cz/datov%C3%A1-sada?iri=https%3A%2F%2Fdata.gov.cz%2Fzdroj%2Fdatov%C3%A9-sady%2F00022985%2F1c063ba63b80cbb7b0e600dfcd9a47d9">NKOD</a></p>
+    <p>&copy; 2026 Filip Cmíral | 4IZ441 Graph data and knowledge</p>
+</body>
+</html>
